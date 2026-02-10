@@ -35,7 +35,7 @@ export default function ParkingDashboard() {
             }
         }
 
-        fetch('http://localhost:5000/api/parking/stats', {
+        fetch('https://mechaniclk-devthon-production.up.railway.app/api/parking/stats', {
             headers: { Authorization: `Bearer ${token}` }
         })
             .then(res => res.json())

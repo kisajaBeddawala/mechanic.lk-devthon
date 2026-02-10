@@ -2,6 +2,8 @@
 
 > Your all-in-one automotive ecosystem — connecting drivers with mechanics, garages, parking, and emergency services across Sri Lanka.
 
+> **📱 This application is primarily designed and optimized for mobile users.** It is also fully compatible with desktop/PC browsers.
+
 🔗 **Live Demo:** [https://mechaniclk.netlify.app](https://mechaniclk.netlify.app)  
 🔗 **API:** [https://mechaniclk-devthon-production.up.railway.app](https://mechaniclk-devthon-production.up.railway.app)
 

@@ -31,10 +31,10 @@ export default function DriverHistoryPage() {
 
         try {
             const results = await Promise.allSettled([
-                fetch('http://localhost:5000/api/auctions/driver', { headers }).then(r => r.json()),
-                fetch('http://localhost:5000/api/service-requests/my', { headers }).then(r => r.json()),
-                fetch('http://localhost:5000/api/bookings/my', { headers }).then(r => r.json()),
-                fetch('http://localhost:5000/api/emergency/my', { headers }).then(r => r.json())
+                fetch('https://mechaniclk-devthon-production.up.railway.app/api/auctions/driver', { headers }).then(r => r.json()),
+                fetch('https://mechaniclk-devthon-production.up.railway.app/api/service-requests/my', { headers }).then(r => r.json()),
+                fetch('https://mechaniclk-devthon-production.up.railway.app/api/bookings/my', { headers }).then(r => r.json()),
+                fetch('https://mechaniclk-devthon-production.up.railway.app/api/emergency/my', { headers }).then(r => r.json())
             ]);
 
             const auctions = results[0].status === 'fulfilled' ? results[0].value : [];
@@ -116,9 +116,9 @@ export default function DriverHistoryPage() {
     }, []);
 
     const getStatusEndpoint = (sourceType: 'auction' | 'service' | 'parking', id: string) => {
-        if (sourceType === 'auction') return `http://localhost:5000/api/auctions/${id}/status`;
-        if (sourceType === 'service') return `http://localhost:5000/api/service-requests/${id}/status`;
-        return `http://localhost:5000/api/bookings/${id}/status`;
+        if (sourceType === 'auction') return `https://mechaniclk-devthon-production.up.railway.app/api/auctions/${id}/status`;
+        if (sourceType === 'service') return `https://mechaniclk-devthon-production.up.railway.app/api/service-requests/${id}/status`;
+        return `https://mechaniclk-devthon-production.up.railway.app/api/bookings/${id}/status`;
     };
 
     const getCompletedStatus = (sourceType: 'auction' | 'service' | 'parking') => {

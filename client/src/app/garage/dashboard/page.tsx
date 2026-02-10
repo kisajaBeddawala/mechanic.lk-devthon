@@ -32,12 +32,21 @@ export default function GarageDashboard() {
         const token = localStorage.getItem('token');
         if (!token) {
             router.push('/login');
-            return;
-        }
-
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
+        } else {
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+                setUser(JSON.parse(storedUser));
+            } else {
+                fetch('https://mechaniclk-devthon-production.up.railway.app/api/users/profile', {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        setUser(data);
+                        localStorage.setItem('user', JSON.stringify(data));
+                    })
+                    .catch(err => console.error(err));
+            }
         }
 
         // Fetch user profile

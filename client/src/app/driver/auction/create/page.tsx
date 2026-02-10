@@ -71,7 +71,7 @@ export default function PostAuctionPage() {
             });
 
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/auctions', {
+            const res = await fetch('https://mechaniclk-devthon-production.up.railway.app/api/auctions', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`

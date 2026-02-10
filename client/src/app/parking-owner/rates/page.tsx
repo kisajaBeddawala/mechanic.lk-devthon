@@ -25,7 +25,7 @@ export default function ManageRatesPage() {
             }
 
             try {
-                const res = await fetch('http://localhost:5000/api/parking/my-spots', {
+                const res = await fetch('https://mechaniclk-devthon-production.up.railway.app/api/parking/my-spots', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const data = await res.json();
@@ -76,7 +76,7 @@ export default function ManageRatesPage() {
         const token = localStorage.getItem('token');
 
         try {
-            const res = await fetch(`http://localhost:5000/api/parking/${selectedSpotId}`, {
+            const res = await fetch(`https://mechaniclk-devthon-production.up.railway.app/api/parking/${selectedSpotId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

@@ -23,7 +23,7 @@ export default function DriverSettingsPage() {
                     return;
                 }
 
-                const res = await fetch('http://localhost:5000/api/users/profile', {
+                const res = await fetch('https://mechaniclk-devthon-production.up.railway.app/api/users/profile', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const data = await res.json();
@@ -42,7 +42,7 @@ export default function DriverSettingsPage() {
         setSaving(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/users/profile', {
+            const res = await fetch('https://mechaniclk-devthon-production.up.railway.app/api/users/profile', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ export default function DriverSettingsPage() {
         setChangingPassword(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/users/password', {
+            const res = await fetch('https://mechaniclk-devthon-production.up.railway.app/api/users/password', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

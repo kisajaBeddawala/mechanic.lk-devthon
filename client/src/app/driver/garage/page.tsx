@@ -23,7 +23,7 @@ export default function DriverGaragePage() {
         const token = localStorage.getItem('token');
         if (!token) return;
         try {
-            const res = await fetch('http://localhost:5000/api/vehicles', {
+            const res = await fetch('https://mechaniclk-devthon-production.up.railway.app/api/vehicles', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
@@ -47,7 +47,7 @@ export default function DriverGaragePage() {
         setSaving(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/vehicles', {
+            const res = await fetch('https://mechaniclk-devthon-production.up.railway.app/api/vehicles', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -72,7 +72,7 @@ export default function DriverGaragePage() {
     const handleRemove = async (id: string) => {
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`http://localhost:5000/api/vehicles/${id}`, {
+            const res = await fetch(`https://mechaniclk-devthon-production.up.railway.app/api/vehicles/${id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` }
             });

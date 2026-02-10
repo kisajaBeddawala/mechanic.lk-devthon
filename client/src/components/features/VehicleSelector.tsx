@@ -31,7 +31,7 @@ export function VehicleSelector({ onVehicleChange, showPlate = false, initialVal
             const token = localStorage.getItem('token');
             if (!token) return;
             try {
-                const res = await fetch('http://localhost:5000/api/vehicles', {
+                const res = await fetch('https://mechaniclk-devthon-production.up.railway.app/api/vehicles', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const data = await res.json();

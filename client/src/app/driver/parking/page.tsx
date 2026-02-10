@@ -54,7 +54,7 @@ export default function ParkingPage() {
     useEffect(() => {
         const fetchSpots = async () => {
             try {
-                let url = 'http://localhost:5000/api/parking/nearby';
+                let url = 'https://mechaniclk-devthon-production.up.railway.app/api/parking/nearby';
                 if (userLocation) {
                     url += `?lat=${userLocation[0]}&long=${userLocation[1]}&radius=10`;
                 }
@@ -122,7 +122,7 @@ export default function ParkingPage() {
             const startTime = new Date();
             const endTime = new Date(startTime.getTime() + Number(hours) * 60 * 60 * 1000);
 
-            const res = await fetch('http://localhost:5000/api/bookings/parking', {
+            const res = await fetch('https://mechaniclk-devthon-production.up.railway.app/api/bookings/parking', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
