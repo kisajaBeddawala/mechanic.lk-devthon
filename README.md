@@ -1,4 +1,4 @@
-# 🚗 Mechanic.LK
+#  Mechanic.LK
 
 > Your all-in-one automotive ecosystem — connecting drivers with mechanics, garages, parking, and emergency services across Sri Lanka.
 
