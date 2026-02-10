@@ -31,7 +31,7 @@ export default function EmergencyPage() {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        const res = await fetch('http://localhost:5000/api/emergency/my', {
+        const res = await fetch('http://mechaniclk-devthon-production.up.railway.app/api/emergency/my', {
             headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
@@ -82,7 +82,7 @@ export default function EmergencyPage() {
         navigator.geolocation.getCurrentPosition(async (position) => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch('http://localhost:5000/api/emergency', {
+                const res = await fetch('http://mechaniclk-devthon-production.up.railway.app/api/emergency', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ export default function EmergencyPage() {
     const handleCancel = async () => {
         if (!request) return;
         const token = localStorage.getItem('token');
-        await fetch(`http://localhost:5000/api/emergency/${request._id}/status`, {
+        await fetch(`http://mechaniclk-devthon-production.up.railway.app/api/emergency/${request._id}/status`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

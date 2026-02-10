@@ -22,7 +22,7 @@ export default function AuctionDetailsPage() {
             }
 
             try {
-                const res = await fetch(`http://localhost:5000/api/auctions/${params.id}`, {
+                const res = await fetch(`http://mechaniclk-devthon-production.up.railway.app/api/auctions/${params.id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (res.ok) {
@@ -47,7 +47,7 @@ export default function AuctionDetailsPage() {
         const token = localStorage.getItem('token');
 
         try {
-            const res = await fetch(`http://localhost:5000/api/auctions/${params.id}/bid`, {
+            const res = await fetch(`http://mechaniclk-devthon-production.up.railway.app/api/auctions/${params.id}/bid`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -94,7 +94,7 @@ export default function AuctionDetailsPage() {
                         auction.photos.map((photo: string, index: number) => (
                             <img
                                 key={index}
-                                src={`http://localhost:5000${photo}`}
+                                src={`http://mechaniclk-devthon-production.up.railway.app${photo}`}
                                 alt="Issue"
                                 className="h-48 w-full min-w-[280px] max-w-sm flex-shrink-0 snap-center rounded-2xl object-cover shadow-sm bg-gray-100 dark:bg-gray-800"
                             />

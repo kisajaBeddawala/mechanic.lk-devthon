@@ -116,7 +116,7 @@ export default function AddSpotPage() {
             };
 
             // Using POST /api/parking as educated guess
-            const res = await fetch('http://localhost:5000/api/parking', {
+            const res = await fetch('http://mechaniclk-devthon-production.up.railway.app/api/parking', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

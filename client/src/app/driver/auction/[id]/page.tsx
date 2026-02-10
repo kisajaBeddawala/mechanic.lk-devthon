@@ -58,7 +58,7 @@ export default function DriverAuctionDetailPage() {
             if (!token || !auctionId) return;
 
             try {
-                const res = await fetch(`http://localhost:5000/api/auctions/${auctionId}`, {
+                const res = await fetch(`http://mechaniclk-devthon-production.up.railway.app/api/auctions/${auctionId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const data = await res.json();
@@ -96,7 +96,7 @@ export default function DriverAuctionDetailPage() {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`http://localhost:5000/api/auctions/${auctionId}/accept-bid`, {
+            const res = await fetch(`http://mechaniclk-devthon-production.up.railway.app/api/auctions/${auctionId}/accept-bid`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -120,7 +120,7 @@ export default function DriverAuctionDetailPage() {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        const res = await fetch('http://localhost:5000/api/payments/methods', {
+        const res = await fetch('http://mechaniclk-devthon-production.up.railway.app/api/payments/methods', {
             headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
@@ -166,7 +166,7 @@ export default function DriverAuctionDetailPage() {
                     return;
                 }
 
-                const res = await fetch('http://localhost:5000/api/payments/charge', {
+                const res = await fetch('http://mechaniclk-devthon-production.up.railway.app/api/payments/charge', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -186,7 +186,7 @@ export default function DriverAuctionDetailPage() {
                     throw new Error(data.message || data.gateway?.msg || 'Charge failed');
                 }
             } else {
-                const res = await fetch('http://localhost:5000/api/payments/cash', {
+                const res = await fetch('http://mechaniclk-devthon-production.up.railway.app/api/payments/cash', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -222,7 +222,7 @@ export default function DriverAuctionDetailPage() {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`http://localhost:5000/api/auctions/${auctionId}/status`, {
+            const res = await fetch(`http://mechaniclk-devthon-production.up.railway.app/api/auctions/${auctionId}/status`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -272,7 +272,7 @@ export default function DriverAuctionDetailPage() {
                 : `/uploads/${normalized.split('/').pop()}`;
         return normalized.startsWith('http')
             ? normalized
-            : `http://localhost:5000${relativePath}`;
+            : `http://mechaniclk-devthon-production.up.railway.app${relativePath}`;
     });
 
     const goNext = () => {

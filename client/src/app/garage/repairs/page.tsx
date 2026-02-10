@@ -18,7 +18,7 @@ export default function GarageAuctionFeedPage() {
             }
 
             try {
-                const res = await fetch('http://localhost:5000/api/auctions/garage', {
+                const res = await fetch('http://mechaniclk-devthon-production.up.railway.app/api/auctions/garage', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const data = await res.json();

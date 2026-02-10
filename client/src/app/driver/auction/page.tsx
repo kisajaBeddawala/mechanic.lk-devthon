@@ -15,7 +15,7 @@ export default function DriverAuctionPage() {
             if (!token) return;
 
             try {
-                const res = await fetch('http://localhost:5000/api/auctions/driver', {
+                const res = await fetch('http://mechaniclk-devthon-production.up.railway.app/api/auctions/driver', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const data = await res.json();

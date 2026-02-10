@@ -44,7 +44,7 @@ export default function ServicesPage() {
     useEffect(() => {
         const fetchMechanics = async () => {
             try {
-                let url = 'http://localhost:5000/api/mechanics';
+                let url = 'http://mechaniclk-devthon-production.up.railway.app/api/mechanics';
                 if (userLocation) {
                     url += `?lat=${userLocation[0]}&lng=${userLocation[1]}&radius=20`;
                 }
@@ -118,7 +118,7 @@ export default function ServicesPage() {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/service-requests', {
+            const res = await fetch('http://mechaniclk-devthon-production.up.railway.app/api/service-requests', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
