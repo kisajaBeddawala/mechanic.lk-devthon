@@ -2,11 +2,22 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { BottomNav } from '@/components/ui/BottomNav';
+import { GarageBottomNav } from '@/components/ui/GarageBottomNav';
+
+interface Auction {
+    _id: string;
+    vehicle: { make: string; model: string; year: number; drivable: boolean };
+    description: string;
+    status: string;
+    endsAt: string;
+    bids: { _id: string; bidder: string; amount: number }[];
+    photos: string[];
+    createdAt: string;
+}
 
 export default function GarageAuctionFeedPage() {
     const router = useRouter();
-    const [auctions, setAuctions] = useState<any[]>([]);
+    const [auctions, setAuctions] = useState<Auction[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -33,34 +44,55 @@ export default function GarageAuctionFeedPage() {
         fetchAuctions();
     }, [router]);
 
+    const isExpired = (endsAt: string) => new Date(endsAt) < new Date();
+
     return (
         <div className="relative min-h-screen w-full bg-background-light dark:bg-background-dark pb-24">
             <div className="fixed top-0 z-30 w-full bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md px-6 py-4 border-b border-gray-100 dark:border-gray-800 shadow-sm">
                 <h1 className="text-xl font-black text-text-main dark:text-white">Repair Jobs</h1>
-                <p className="text-xs text-text-sub dark:text-gray-400 font-medium">Bid on active requests</p>
+                <p className="text-xs text-text-sub dark:text-gray-400 font-medium">Bid on active requests from drivers</p>
             </div>
 
             <main className="pt-24 px-4">
                 {loading ? (
-                    <p className="text-center text-gray-500 mt-10">Loading opportunities...</p>
+                    <div className="grid gap-4">
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className="rounded-2xl bg-gray-100 dark:bg-gray-800 h-40 animate-pulse"></div>
+                        ))}
+                    </div>
                 ) : auctions.length === 0 ? (
                     <div className="text-center mt-20">
                         <span className="material-symbols-outlined text-4xl text-gray-300 mb-2">inbox</span>
-                        <p className="text-gray-500">No active repair requests found.</p>
+                        <p className="text-gray-500 font-bold">No active repair requests found.</p>
+                        <p className="text-sm text-gray-400 mt-1">Check back later for new driver requests.</p>
                     </div>
                 ) : (
                     <div className="grid gap-4">
                         {auctions.map((auction) => (
                             <div
                                 key={auction._id}
-                                onClick={() => router.push(`/garage/auctions/${auction._id}`)}
+                                onClick={() => router.push(`/garage/repairs/${auction._id}`)}
                                 className="group relative overflow-hidden rounded-2xl bg-white dark:bg-card-dark shadow-soft transition-all hover:shadow-lg active:scale-[0.99] cursor-pointer border border-transparent hover:border-primary/20"
                             >
+                                {/* Photo thumbnail */}
+                                {auction.photos && auction.photos.length > 0 && (
+                                    <div className="h-32 w-full overflow-hidden">
+                                        <img
+                                            src={`http://localhost:5000${auction.photos[0]}`}
+                                            alt="Vehicle issue"
+                                            className="h-full w-full object-cover"
+                                        />
+                                    </div>
+                                )}
                                 <div className="p-5">
                                     <div className="flex justify-between items-start mb-3">
-                                        <span className={`px-2 py-1 rounded-md text-xs font-bold ${auction.status === 'Open' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-600'
+                                        <span className={`px-2 py-1 rounded-md text-xs font-bold ${isExpired(auction.endsAt)
+                                            ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                                            : auction.status === 'Active'
+                                                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                                : 'bg-gray-100 text-gray-600'
                                             }`}>
-                                            {auction.status}
+                                            {isExpired(auction.endsAt) ? 'Expired' : auction.status}
                                         </span>
                                         <span className="text-xs font-medium text-text-sub dark:text-gray-400">
                                             Ends: {new Date(auction.endsAt).toLocaleDateString()}
@@ -70,6 +102,11 @@ export default function GarageAuctionFeedPage() {
                                     <h3 className="text-lg font-bold text-text-main dark:text-white mb-1">
                                         {auction.vehicle?.year} {auction.vehicle?.make} {auction.vehicle?.model}
                                     </h3>
+                                    {!auction.vehicle?.drivable && (
+                                        <span className="inline-block mb-2 px-2 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                                            Not Drivable
+                                        </span>
+                                    )}
 
                                     <p className="text-sm text-text-sub dark:text-gray-400 line-clamp-2 mb-4">
                                         {auction.description}
@@ -91,7 +128,7 @@ export default function GarageAuctionFeedPage() {
                 )}
             </main>
 
-            <BottomNav />
+            <GarageBottomNav />
         </div>
     );
 }

@@ -22,13 +22,17 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new Error('User already exists');
     }
 
+    // Validate role - prevent self-registration as Admin
+    const allowedRoles = ['Driver', 'Garage Owner', 'Parking Owner'];
+    const userRole = role && allowedRoles.includes(role) ? role : 'Driver';
+
     // Create user
     const user = await User.create({
         name,
         email,
         password,
         phone,
-        role
+        role: userRole
     });
 
     if (user) {

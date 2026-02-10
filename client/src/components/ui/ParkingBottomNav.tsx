@@ -48,13 +48,13 @@ export function ParkingBottomNav() {
                 </Link>
 
                 <Link
-                    href="/parking-owner/messages"
-                    className={`flex flex-col items-center gap-1 transition-colors ${isActive('/parking-owner/messages') ? 'text-primary' : 'text-text-sub hover:text-primary dark:text-gray-400'}`}
+                    href="/parking-owner/profile"
+                    className={`flex flex-col items-center gap-1 transition-colors ${isActive('/parking-owner/profile') ? 'text-primary' : 'text-text-sub hover:text-primary dark:text-gray-400'}`}
                 >
-                    <span className={`material-symbols-outlined text-2xl ${isActive('/parking-owner/messages') ? 'font-variation-filled' : ''}`}>
-                        forum
+                    <span className={`material-symbols-outlined text-2xl ${isActive('/parking-owner/profile') ? 'font-variation-filled' : ''}`}>
+                        person
                     </span>
-                    <span className="text-[10px] font-bold">Chat</span>
+                    <span className="text-[10px] font-bold">Profile</span>
                 </Link>
             </div>
         </div>

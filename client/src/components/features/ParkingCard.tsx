@@ -1,8 +1,5 @@
 "use client";
 
-import { Button } from '@/components/ui/Button'; // Assuming Button component exists, or use standard button
-import { Card } from '@/components/ui/Card'; // Assuming Card component exists
-
 interface ParkingCardProps {
     title: string;
     description: string;

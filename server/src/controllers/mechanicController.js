@@ -38,8 +38,6 @@ const updateProfile = asyncHandler(async (req, res) => {
         }
 
         const { businessName, description, isOnline, serviceRadius } = req.body;
-        // Location and services might come as JSON strings if using FormData needed for file upload
-        // We need to parse them if they are strings.
 
         let location = req.body.location;
         let services = req.body.services;
@@ -49,6 +47,15 @@ const updateProfile = asyncHandler(async (req, res) => {
             if (typeof services === 'string') services = JSON.parse(services);
         } catch (e) {
             return res.status(400).json({ message: 'Invalid JSON format for location or services' });
+        }
+
+        // Validate coordinates if provided
+        if (location && location.coordinates) {
+            const [lng, lat] = location.coordinates;
+            if (typeof lng !== 'number' || typeof lat !== 'number' ||
+                lng < -180 || lng > 180 || lat < -90 || lat > 90) {
+                return res.status(400).json({ message: 'Invalid coordinates' });
+            }
         }
 
         const imagePaths = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
@@ -70,17 +77,6 @@ const updateProfile = asyncHandler(async (req, res) => {
         let mechanic = await Mechanic.findOne({ user: req.user.id });
 
         if (mechanic) {
-            // Update
-            // If new images provided, append or replace? Let's append for now or replace. 
-            // The prompt implies "add their spot". 
-            // If updating, we might want to keep old images if no new ones, or replace.
-            // Let's strictly replace if new ones are uploaded, otherwise keep old? 
-            // actually mechanicFields.images is only set if imagePaths > 0.
-            // However, findOneAndUpdate with $set will overwrite if key exists.
-
-            // If we want to merge, we need to fetch, push, save.
-            // But specific requirement isn't detailed. I'll stick to Replace if new provided, else keep existing (by not adding to $set).
-
             if (imagePaths.length === 0) {
                 delete mechanicFields.images;
             }
@@ -92,16 +88,46 @@ const updateProfile = asyncHandler(async (req, res) => {
             );
             res.json(mechanic);
         } else {
-            // Create
             mechanic = await Mechanic.create(mechanicFields);
             res.status(201).json(mechanic);
         }
     });
 });
 
+// @desc    Get logged-in garage owner's mechanic profile
+// @route   GET /api/mechanics/my-profile
+// @access  Private (Garage Owner)
+const getMyProfile = asyncHandler(async (req, res) => {
+    const mechanic = await Mechanic.findOne({ user: req.user.id });
+
+    if (!mechanic) {
+        res.status(404);
+        throw new Error('No mechanic profile found. Please register your garage first.');
+    }
+
+    res.json(mechanic);
+});
+
+// @desc    Toggle online/offline status
+// @route   PUT /api/mechanics/toggle-online
+// @access  Private (Garage Owner)
+const toggleOnline = asyncHandler(async (req, res) => {
+    const mechanic = await Mechanic.findOne({ user: req.user.id });
+
+    if (!mechanic) {
+        res.status(404);
+        throw new Error('No mechanic profile found');
+    }
+
+    mechanic.isOnline = !mechanic.isOnline;
+    await mechanic.save();
+
+    res.json({ isOnline: mechanic.isOnline });
+});
+
 // @desc    Get nearest mechanics
 // @route   GET /api/mechanics/nearest
-// @access  Public or Private
+// @access  Public
 const getNearestMechanics = asyncHandler(async (req, res) => {
     const { long, lat, radius } = req.query;
 
@@ -110,11 +136,10 @@ const getNearestMechanics = asyncHandler(async (req, res) => {
         throw new Error('Please provide longitude and latitude');
     }
 
-    // Radius in meters (default 10km)
-    const maxDistance = radius ? (parseInt(radius) * 1000) : 10000;
+    const maxDistance = radius ? (parseFloat(radius) * 1000) : 10000;
 
     const mechanics = await Mechanic.find({
-        isOnline: true, // Only online mechanics
+        isOnline: true,
         location: {
             $near: {
                 $geometry: {
@@ -132,22 +157,16 @@ const getNearestMechanics = asyncHandler(async (req, res) => {
     });
 });
 
-// @desc    Get all mechanics (with filtering)
-// @route   GET /api/mechanics
-// @access  Public
-// @desc    Get all mechanics (with filtering)
+// @desc    Get all mechanics (with optional geo filtering)
 // @route   GET /api/mechanics
 // @access  Public
 const getMechanics = asyncHandler(async (req, res) => {
     const { lat, lng, long, radius } = req.query;
     const longitude = lng || long;
 
-    console.log(`[getMechanics] Request received. Lat: ${lat}, Lng: ${longitude}, Radius: ${radius}`);
-
     try {
         if (lat && longitude) {
-            const maxDistance = radius ? (parseInt(radius) * 1000) : 10000;
-            console.log(`[getMechanics] Querying near [${longitude}, ${lat}] maxDistance: ${maxDistance}`);
+            const maxDistance = radius ? (parseFloat(radius) * 1000) : 10000;
 
             const mechanics = await Mechanic.find({
                 isOnline: true,
@@ -162,16 +181,12 @@ const getMechanics = asyncHandler(async (req, res) => {
                 }
             }).populate('user', 'name phone avatarUrl');
 
-            console.log(`[getMechanics] Found ${mechanics.length} mechanics nearby.`);
             res.json(mechanics);
         } else {
-            console.log(`[getMechanics] Fetching all mechanics (no geo query).`);
             const mechanics = await Mechanic.find().populate('user', 'name phone avatarUrl');
-            console.log(`[getMechanics] Found ${mechanics.length} mechanics total.`);
             res.json(mechanics);
         }
     } catch (error) {
-        console.error(`[getMechanics] Error:`, error);
         res.status(500).json({ message: "Server Error", error: error.message });
     }
 });
@@ -192,6 +207,8 @@ const getMechanicById = asyncHandler(async (req, res) => {
 
 module.exports = {
     updateProfile,
+    getMyProfile,
+    toggleOnline,
     getNearestMechanics,
     getMechanics,
     getMechanicById

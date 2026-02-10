@@ -37,17 +37,17 @@ export function BottomNav() {
 
     const garageNavItems: NavItem[] = [
         { icon: 'home', label: 'Home', path: '/garage/dashboard' },
-        { icon: 'car_repair', label: 'Repairs', path: '/garage/repairs' }, // Repairs / Auctions
-        { icon: 'add', label: '', path: '/garage/add', isMain: true }, // Large Plus Button
-        { icon: 'chat', label: 'Messages', path: '/garage/messages' },
+        { icon: 'gavel', label: 'Repairs', path: '/garage/repairs' },
+        { icon: 'add', label: '', path: '/garage/add', isMain: true },
+        { icon: 'receipt_long', label: 'My Bids', path: '/garage/my-bids' },
         { icon: 'person', label: 'Profile', path: '/garage/profile' },
     ];
 
     const parkingNavItems: NavItem[] = [
         { icon: 'home', label: 'Home', path: '/parking-owner/dashboard' },
-        { icon: 'receipt_long', label: 'Activity', path: '/parking-owner/activity' },
+        { icon: 'receipt_long', label: 'Bookings', path: '/parking-owner/bookings' },
         { icon: 'add', label: 'Add', path: '/parking-owner/add', isMain: true },
-        { icon: 'chat_bubble', label: 'Messages', path: '/parking-owner/messages' },
+        { icon: 'currency_exchange', label: 'Rates', path: '/parking-owner/rates' },
         { icon: 'person', label: 'Profile', path: '/parking-owner/profile' },
     ];
 

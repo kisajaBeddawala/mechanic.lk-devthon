@@ -5,7 +5,8 @@ const {
     getNearbySpots,
     getParkingDashboardStats,
     getMySpots,
-    updateSpot
+    updateSpot,
+    deleteSpot
 } = require('../controllers/parkingController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
@@ -14,5 +15,6 @@ router.get('/nearby', getNearbySpots);
 router.get('/stats', protect, authorize('Parking Owner'), getParkingDashboardStats);
 router.get('/my-spots', protect, authorize('Parking Owner'), getMySpots);
 router.put('/:id', protect, authorize('Parking Owner'), updateSpot);
+router.delete('/:id', protect, authorize('Parking Owner'), deleteSpot);
 
 module.exports = router;
