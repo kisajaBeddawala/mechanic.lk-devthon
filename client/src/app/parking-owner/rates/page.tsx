@@ -162,7 +162,7 @@ export default function ManageRatesPage() {
                     </div>
                     <div className="flex items-center justify-between rounded-xl bg-background-light dark:bg-background-dark p-2">
                         <button
-                            onClick={() => updateRate('pricePerHour', -1)}
+                            onClick={() => updateRate('pricePerHour', -50)}
                             className="flex h-12 w-12 items-center justify-center rounded-xl bg-white dark:bg-card-dark shadow-sm text-text-sub hover:text-primary active:scale-95 transition-all"
                         >
                             <span className="material-symbols-outlined">remove</span>
@@ -177,7 +177,7 @@ export default function ManageRatesPage() {
                             />
                         </div>
                         <button
-                            onClick={() => updateRate('pricePerHour', 1)}
+                            onClick={() => updateRate('pricePerHour', 50)}
                             className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary shadow-glow text-white active:scale-95 transition-all"
                         >
                             <span className="material-symbols-outlined">add</span>
@@ -199,13 +199,13 @@ export default function ManageRatesPage() {
                     </div>
                     <div className="flex items-center justify-between rounded-xl bg-background-light dark:bg-background-dark p-2">
                         <button
-                            onClick={() => updateRate('dailyMaxRate', -5)}
+                            onClick={() => updateRate('dailyMaxRate', -100)}
                             className="flex h-12 w-12 items-center justify-center rounded-xl bg-white dark:bg-card-dark shadow-sm text-text-sub hover:text-primary active:scale-95 transition-all"
                         >
                             <span className="material-symbols-outlined">remove</span>
                         </button>
                         <div className="flex items-baseline gap-1">
-                            <span className="text-lg font-bold text-text-sub align-top mt-1">$</span>
+                            <span className="text-sm font-bold text-text-sub align-top mt-1">LKR</span>
                             <input
                                 className="w-24 bg-transparent text-center text-4xl font-extrabold text-text-main dark:text-white focus:outline-none p-0 border-none"
                                 type="number"
@@ -214,7 +214,7 @@ export default function ManageRatesPage() {
                             />
                         </div>
                         <button
-                            onClick={() => updateRate('dailyMaxRate', 5)}
+                            onClick={() => updateRate('dailyMaxRate', 100)}
                             className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary shadow-glow text-white active:scale-95 transition-all"
                         >
                             <span className="material-symbols-outlined">add</span>

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { BottomNav } from '@/components/ui/BottomNav';
+import { ParkingBottomNav } from '@/components/ui/ParkingBottomNav';
 import dynamic from 'next/dynamic';
 
 const MapPicker = dynamic(() => import('@/components/ui/MapPicker'), { ssr: false });
@@ -22,8 +22,8 @@ export default function AddSpotPage() {
         zip: '',
         latitude: '',
         longitude: '',
-        pricePerHour: 5.00,
-        dailyMaxRate: 35.00,
+        pricePerHour: 200,
+        dailyMaxRate: 1500,
         vehicleTypes: [] as string[],
         daysActive: ['M', 'T', 'W', 'Th', 'F', 'Sa', 'Su'],
         startTime: '08:00',
@@ -218,27 +218,31 @@ export default function AddSpotPage() {
                         <div className="space-y-3">
                             <label className="block text-sm font-bold text-text-main dark:text-gray-200">Amenities</label>
                             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                                {['CCTV', 'Covered', 'EV Charging', '24/7 Access'].map((amenity) => (
+                                {[
+                                    { name: 'CCTV', icon: 'videocam' },
+                                    { name: 'Covered', icon: 'roofing' },
+                                    { name: 'EV Charging', icon: 'ev_station' },
+                                    { name: '24/7 Access', icon: 'schedule' },
+                                    { name: 'Gated', icon: 'fence' },
+                                    { name: 'Lighting', icon: 'lightbulb' },
+                                    { name: 'Paved', icon: 'road' },
+                                ].map((amenity) => (
                                     <div
-                                        key={amenity}
-                                        onClick={() => toggleAmenity(amenity)}
-                                        className={`cursor-pointer flex flex-col items-center justify-center rounded-xl p-3 shadow-sm ring-1 transition-all h-24 ${formData.amenities.includes(amenity)
+                                        key={amenity.name}
+                                        onClick={() => toggleAmenity(amenity.name)}
+                                        className={`cursor-pointer flex flex-col items-center justify-center rounded-xl p-3 shadow-sm ring-1 transition-all h-24 ${formData.amenities.includes(amenity.name)
                                             ? 'bg-primary/5 ring-primary'
                                             : 'bg-white dark:bg-card-dark ring-gray-200 dark:ring-gray-700 hover:ring-primary/50'
                                             }`}
                                     >
-                                        <div className={`mb-2 flex h-10 w-10 items-center justify-center rounded-full transition-colors ${formData.amenities.includes(amenity)
+                                        <div className={`mb-2 flex h-10 w-10 items-center justify-center rounded-full transition-colors ${formData.amenities.includes(amenity.name)
                                             ? 'bg-primary text-white'
                                             : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
                                             }`}>
-                                            <span className="material-symbols-outlined">
-                                                {amenity === 'CCTV' ? 'videocam' :
-                                                    amenity === 'Covered' ? 'roofing' :
-                                                        amenity === 'EV Charging' ? 'ev_station' : 'schedule'}
-                                            </span>
+                                            <span className="material-symbols-outlined">{amenity.icon}</span>
                                         </div>
-                                        <span className={`text-xs font-semibold ${formData.amenities.includes(amenity) ? 'text-primary' : 'text-text-main dark:text-gray-400'}`}>
-                                            {amenity}
+                                        <span className={`text-xs font-semibold ${formData.amenities.includes(amenity.name) ? 'text-primary' : 'text-text-main dark:text-gray-400'}`}>
+                                            {amenity.name}
                                         </span>
                                     </div>
                                 ))}
@@ -381,18 +385,18 @@ export default function AddSpotPage() {
                                 <div className="flex justify-between items-start mb-6">
                                     <div>
                                         <label className="block text-sm font-bold text-text-main dark:text-white">Base Hourly Rate</label>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Suggested: $5.00 - $8.00 / hr</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Suggested: LKR 200 - LKR 500 / hr</p>
                                     </div>
                                     <div className="h-8 w-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-primary">
                                         <span className="material-symbols-outlined text-lg">payments</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                    <button onClick={() => setFormData(prev => ({ ...prev, pricePerHour: Math.max(0, prev.pricePerHour - 0.5) }))} className="h-14 w-14 rounded-2xl bg-gray-50 dark:bg-gray-700 text-text-main dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center justify-center transition-colors border border-gray-200 dark:border-gray-600 active:scale-95">
+                                    <button onClick={() => setFormData(prev => ({ ...prev, pricePerHour: Math.max(0, prev.pricePerHour - 50) }))} className="h-14 w-14 rounded-2xl bg-gray-50 dark:bg-gray-700 text-text-main dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 flex items-center justify-center transition-colors border border-gray-200 dark:border-gray-600 active:scale-95">
                                         <span className="material-symbols-outlined">remove</span>
                                     </button>
                                     <div className="flex-1 flex justify-center items-center relative h-14">
-                                        <span className="text-2xl font-bold text-text-main dark:text-white mr-1">$</span>
+                                        <span className="text-lg font-bold text-text-main dark:text-white mr-1">LKR</span>
                                         <input
                                             name="pricePerHour"
                                             value={formData.pricePerHour}
@@ -402,7 +406,7 @@ export default function AddSpotPage() {
                                             type="number"
                                         />
                                     </div>
-                                    <button onClick={() => setFormData(prev => ({ ...prev, pricePerHour: prev.pricePerHour + 0.5 }))} className="h-14 w-14 rounded-2xl bg-primary text-white hover:bg-primary-dark shadow-glow flex items-center justify-center transition-colors active:scale-95 active:shadow-none">
+                                    <button onClick={() => setFormData(prev => ({ ...prev, pricePerHour: prev.pricePerHour + 50 }))} className="h-14 w-14 rounded-2xl bg-primary text-white hover:bg-primary-dark shadow-glow flex items-center justify-center transition-colors active:scale-95 active:shadow-none">
                                         <span className="material-symbols-outlined">add</span>
                                     </button>
                                 </div>
@@ -414,7 +418,7 @@ export default function AddSpotPage() {
                                     <span className="text-[10px] text-gray-500 font-medium">Cap price for 24 hours</span>
                                 </div>
                                 <div className="relative w-32">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">LKR</span>
                                     <input
                                         name="dailyMaxRate"
                                         value={formData.dailyMaxRate}
@@ -523,7 +527,7 @@ export default function AddSpotPage() {
             </div>
 
             <div className="h-8 w-full"></div>
-            <BottomNav />
+            <ParkingBottomNav />
         </div>
     );
 }

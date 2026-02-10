@@ -34,14 +34,10 @@ const upload = multer({
 // @route   POST /api/auctions
 // @access  Private (Driver)
 const createAuction = asyncHandler(async (req, res) => {
-    console.log('Request to create auction received');
     upload(req, res, async function (err) {
         if (err) {
-            console.log('Multer error:', err);
             return res.status(400).json({ message: err.message });
         }
-        console.log('Multer processing complete. Files:', req.files?.length);
-        console.log('Auction data:', req.body);
 
         const make = req.body.make || req.body['vehicle[make]'] || req.body['vehicle.make'];
         const model = req.body.model || req.body['vehicle[model]'] || req.body['vehicle.model'] || 'Unknown';
@@ -49,9 +45,12 @@ const createAuction = asyncHandler(async (req, res) => {
         const description = req.body.description || req.body['vehicle[description]'];
         const rawDrivable = req.body.drivable ?? req.body.isDrivable ?? req.body['vehicle[drivable]'];
 
-        // Ensure user is authorized (check middleware if needed, here Assuming req.user exists)
         if (!req.user) {
             return res.status(401).json({ message: 'Not authorized' });
+        }
+
+        if (!make || !year || !description) {
+            return res.status(400).json({ message: 'Please provide make, year, and description' });
         }
 
         const uploadedPhotos = []
@@ -59,7 +58,7 @@ const createAuction = asyncHandler(async (req, res) => {
             .concat(req.files?.images || []);
         const photoPaths = uploadedPhotos.map(file => `/uploads/${file.filename}`);
 
-        // Set endsAt to 7 days from now by default if not provided
+        // Set endsAt to 7 days from now
         const endsAt = new Date();
         endsAt.setDate(endsAt.getDate() + 7);
 
@@ -80,11 +79,16 @@ const createAuction = asyncHandler(async (req, res) => {
     });
 });
 
-// @desc    Get all auctions
+// @desc    Get all active auctions (for garage owners to bid on)
 // @route   GET /api/auctions
+// @route   GET /api/auctions/garage
 // @access  Private
 const getAuctions = asyncHandler(async (req, res) => {
-    const auctions = await Auction.find({ status: 'Active' })
+    // Only show active auctions that haven't expired
+    const auctions = await Auction.find({
+        status: 'Active',
+        endsAt: { $gt: new Date() }
+    })
         .populate('user', 'name avatarUrl')
         .sort('-createdAt');
     res.json(auctions);
@@ -108,32 +112,58 @@ const getAuctionById = asyncHandler(async (req, res) => {
 
 // @desc    Place a bid
 // @route   POST /api/auctions/:id/bid
-// @access  Private (Garage/Mechanic)
+// @access  Private (Garage Owner only)
 const placeBid = asyncHandler(async (req, res) => {
-    console.log(`Bid request for ${req.params.id}`, req.body);
     const { amount, estimatedTime, note } = req.body;
     const auction = await Auction.findById(req.params.id);
 
-    if (auction) {
-        if (req.user._id.toString() === auction.user.toString()) {
-            res.status(400);
-            throw new Error('You cannot bid on your own auction');
-        }
-
-        const bid = {
-            bidder: req.user._id,
-            amount: Number(amount),
-            estimatedTime,
-            note
-        };
-
-        auction.bids.push(bid);
-        await auction.save();
-        res.status(201).json(auction);
-    } else {
+    if (!auction) {
         res.status(404);
         throw new Error('Auction not found');
     }
+
+    // Check auction is still active
+    if (auction.status !== 'Active') {
+        res.status(400);
+        throw new Error('This auction is no longer active');
+    }
+
+    // Check auction hasn't expired
+    if (new Date(auction.endsAt) < new Date()) {
+        res.status(400);
+        throw new Error('This auction has expired');
+    }
+
+    // Can't bid on own auction
+    if (req.user._id.toString() === auction.user.toString()) {
+        res.status(400);
+        throw new Error('You cannot bid on your own auction');
+    }
+
+    // Prevent duplicate bids from the same user
+    const existingBid = auction.bids.find(
+        b => b.bidder.toString() === req.user._id.toString()
+    );
+    if (existingBid) {
+        res.status(400);
+        throw new Error('You have already placed a bid on this auction. You cannot bid twice.');
+    }
+
+    if (!amount || Number(amount) <= 0) {
+        res.status(400);
+        throw new Error('Bid amount must be greater than 0');
+    }
+
+    const bid = {
+        bidder: req.user._id,
+        amount: Number(amount),
+        estimatedTime: String(estimatedTime),
+        note
+    };
+
+    auction.bids.push(bid);
+    await auction.save();
+    res.status(201).json(auction);
 });
 
 // @desc    Get logged-in driver's auctions
@@ -141,8 +171,73 @@ const placeBid = asyncHandler(async (req, res) => {
 // @access  Private (Driver)
 const getDriverAuctions = asyncHandler(async (req, res) => {
     const auctions = await Auction.find({ user: req.user._id })
+        .populate('bids.bidder', 'name avatarUrl')
         .sort('-createdAt');
     res.json(auctions);
+});
+
+// @desc    Get all bids placed by the logged-in garage owner across all auctions
+// @route   GET /api/auctions/my-bids
+// @access  Private (Garage Owner)
+const getMyBids = asyncHandler(async (req, res) => {
+    const auctions = await Auction.find({
+        'bids.bidder': req.user._id
+    })
+        .populate('user', 'name phone')
+        .sort('-createdAt');
+
+    const myBids = [];
+    for (const auction of auctions) {
+        const myBid = auction.bids.find(b => b.bidder.toString() === req.user._id.toString());
+        if (myBid) {
+            myBids.push({
+                auctionId: auction._id,
+                bidId: myBid._id,
+                vehicle: auction.vehicle,
+                description: auction.description,
+                auctionStatus: auction.status,
+                bidAmount: myBid.amount,
+                estimatedTime: myBid.estimatedTime,
+                note: myBid.note,
+                bidCreatedAt: myBid.createdAt,
+                endsAt: auction.endsAt,
+                isAccepted: auction.acceptedBid && auction.acceptedBid.toString() === myBid._id.toString(),
+                driverName: auction.user?.name || 'Unknown',
+                driverPhone: auction.user?.phone,
+                photos: auction.photos
+            });
+        }
+    }
+
+    res.json(myBids);
+});
+
+// @desc    Get bid stats for garage owner dashboard
+// @route   GET /api/auctions/my-bids/stats
+// @access  Private (Garage Owner)
+const getMyBidStats = asyncHandler(async (req, res) => {
+    const auctions = await Auction.find({
+        'bids.bidder': req.user._id
+    });
+
+    let totalBids = 0;
+    let acceptedBids = 0;
+    let activeBids = 0;
+
+    for (const auction of auctions) {
+        const myBid = auction.bids.find(b => b.bidder.toString() === req.user._id.toString());
+        if (myBid) {
+            totalBids++;
+            if (auction.acceptedBid && auction.acceptedBid.toString() === myBid._id.toString()) {
+                acceptedBids++;
+            }
+            if (auction.status === 'Active' && new Date(auction.endsAt) > new Date()) {
+                activeBids++;
+            }
+        }
+    }
+
+    res.json({ totalBids, acceptedBids, activeBids });
 });
 
 // @desc    Accept a bid for an auction
@@ -160,6 +255,11 @@ const acceptBid = asyncHandler(async (req, res) => {
     if (auction.user.toString() !== req.user._id.toString()) {
         res.status(403);
         throw new Error('Not authorized to accept bids for this auction');
+    }
+
+    if (auction.status !== 'Active') {
+        res.status(400);
+        throw new Error('Can only accept bids on active auctions');
     }
 
     const bidExists = auction.bids.some((bid) => bid._id.toString() === bidId);
@@ -210,5 +310,7 @@ module.exports = {
     placeBid,
     getDriverAuctions,
     acceptBid,
-    updateAuctionStatus
+    updateAuctionStatus,
+    getMyBids,
+    getMyBidStats
 };

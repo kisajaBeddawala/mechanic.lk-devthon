@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const ParkingSpot = require('../models/ParkingSpot');
+const Booking = require('../models/Booking');
 
 // @desc    List a parking spot
 // @route   POST /api/parking
@@ -17,11 +18,16 @@ const createSpot = asyncHandler(async (req, res) => {
         images
     } = req.body;
 
+    if (!location || !location.coordinates || location.coordinates.length !== 2) {
+        res.status(400);
+        throw new Error('Valid location coordinates [longitude, latitude] are required');
+    }
+
     const spot = await ParkingSpot.create({
         owner: req.user.id,
         title,
         description,
-        location, // Expecting { coordinates: [long, lat], address, streetAddress, city, zipCode }
+        location,
         pricePerHour,
         dailyMaxRate,
         vehicleTypes,
@@ -71,16 +77,30 @@ const getNearbySpots = asyncHandler(async (req, res) => {
 const getParkingDashboardStats = asyncHandler(async (req, res) => {
     const spots = await ParkingSpot.find({ owner: req.user.id });
 
-    // Calculate dummy stats for now since booking logic isn't fully connected
     const totalSpots = spots.length;
-    const occupiedSpots = spots.filter(spot => !spot.isAvailable).length;
-    const revenue = 12500; // Dummy revenue
+    // Fix: correctly access nested availability.isAvailable
+    const occupiedSpots = spots.filter(spot => spot.availability && spot.availability.isAvailable === false).length;
+
+    // Calculate real revenue from completed bookings
+    const spotIds = spots.map(s => s._id);
+    const completedBookings = await Booking.find({
+        parkingSpot: { $in: spotIds },
+        status: { $in: ['completed', 'confirmed'] }
+    });
+    const revenue = completedBookings.reduce((sum, b) => sum + (b.totalPrice || 0), 0);
+
+    // Count bookings
+    const allBookings = await Booking.find({ parkingSpot: { $in: spotIds } });
+    const totalBookings = allBookings.length;
+    const pendingBookings = allBookings.filter(b => b.status === 'pending').length;
 
     res.json({
         totalSpots,
         occupiedSpots,
         revenue,
-        occupancyRate: totalSpots > 0 ? Math.round((occupiedSpots / totalSpots) * 100) : 0
+        occupancyRate: totalSpots > 0 ? Math.round((occupiedSpots / totalSpots) * 100) : 0,
+        totalBookings,
+        pendingBookings
     });
 });
 
@@ -92,7 +112,7 @@ const getMySpots = asyncHandler(async (req, res) => {
     res.json(spots);
 });
 
-// @desc    Update a parking spot
+// @desc    Update a parking spot (sanitized - only allowed fields)
 // @route   PUT /api/parking/:id
 // @access  Private (Parking Owner)
 const updateSpot = asyncHandler(async (req, res) => {
@@ -103,13 +123,52 @@ const updateSpot = asyncHandler(async (req, res) => {
         throw new Error('Parking spot not found or not authorized');
     }
 
+    // Only allow updating specific fields (prevent owner/bookings overwrite)
+    const allowedFields = [
+        'title', 'description', 'location', 'pricePerHour', 'dailyMaxRate',
+        'isPeakPricingActive', 'vehicleTypes', 'availability', 'features', 'images'
+    ];
+
+    const updateData = {};
+    for (const key of allowedFields) {
+        if (req.body[key] !== undefined) {
+            updateData[key] = req.body[key];
+        }
+    }
+
     const updatedSpot = await ParkingSpot.findByIdAndUpdate(
         req.params.id,
-        req.body,
+        updateData,
         { new: true, runValidators: true }
     );
 
     res.json(updatedSpot);
+});
+
+// @desc    Delete a parking spot
+// @route   DELETE /api/parking/:id
+// @access  Private (Parking Owner)
+const deleteSpot = asyncHandler(async (req, res) => {
+    const spot = await ParkingSpot.findOne({ _id: req.params.id, owner: req.user.id });
+
+    if (!spot) {
+        res.status(404);
+        throw new Error('Parking spot not found or not authorized');
+    }
+
+    // Check for active bookings
+    const activeBookings = await Booking.find({
+        parkingSpot: spot._id,
+        status: { $in: ['pending', 'confirmed'] }
+    });
+
+    if (activeBookings.length > 0) {
+        res.status(400);
+        throw new Error('Cannot delete spot with active bookings. Cancel or complete them first.');
+    }
+
+    await ParkingSpot.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Parking spot deleted successfully' });
 });
 
 module.exports = {
@@ -117,5 +176,6 @@ module.exports = {
     getNearbySpots,
     getParkingDashboardStats,
     getMySpots,
-    updateSpot
+    updateSpot,
+    deleteSpot
 };

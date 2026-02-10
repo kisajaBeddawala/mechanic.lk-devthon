@@ -1,40 +1,89 @@
 "use client";
 
-import React from 'react';
-import { Button } from '@/components/ui/Button';
+import React, { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 
-export function ParkingMap() {
+const MapContainer = dynamic(
+    () => import('react-leaflet').then(mod => mod.MapContainer),
+    { ssr: false }
+);
+const TileLayer = dynamic(
+    () => import('react-leaflet').then(mod => mod.TileLayer),
+    { ssr: false }
+);
+const MarkerDynamic = dynamic(
+    () => import('react-leaflet').then(mod => mod.Marker),
+    { ssr: false }
+);
+const PopupDynamic = dynamic(
+    () => import('react-leaflet').then(mod => mod.Popup),
+    { ssr: false }
+);
+
+interface Spot {
+    _id: string;
+    title: string;
+    pricePerHour: number;
+    location: {
+        coordinates: [number, number];
+        address?: string;
+    };
+}
+
+interface ParkingMapProps {
+    spots?: Spot[];
+    center?: [number, number];
+    onSpotSelect?: (spot: Spot) => void;
+}
+
+export function ParkingMap({ spots = [], center = [6.9271, 79.8612], onSpotSelect }: ParkingMapProps) {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
+        return (
+            <div className="relative h-full w-full bg-gray-200 dark:bg-gray-800 overflow-hidden rounded-3xl flex items-center justify-center">
+                <span className="material-symbols-outlined text-4xl text-gray-400 animate-spin">progress_activity</span>
+            </div>
+        );
+    }
+
     return (
-        <div className="relative h-full w-full bg-gray-200 dark:bg-gray-800 overflow-hidden rounded-3xl">
-            {/* Background Map Image - Placeholder */}
-            <div
-                className="absolute inset-0 bg-cover bg-center opacity-80"
-                style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuD0oSNCo8tjH6dj91y6Xhh1PT2mw2ANI5sq6gwnQaRCtdP5Xnz58-3PzrKSQl4tHo41nmgfzT2vIVl9RvOHg_2IMlKMEzvIVK5OqHQ_T7X7NXYj3sX-brmLj0NcaeRE-MHDIyiQZvKIgdQoyHDlbsOpJXVIvLhjO0K842T8WtQNmBguLxf70dtfXRBc-UI4XM1Aa-CyvW8lbVH5-KIWdlu6xD98hOQiGAqGrx_v4nKHNutUHw_CpHxNCNDuUV2wrmabUUnFwyG0az4')" }}
-            ></div>
-
-            {/* Markers Overlay */}
-            <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-[35%] left-[20%] pointer-events-auto transform hover:scale-110 transition-transform">
-                    <div className="bg-white dark:bg-surface-dark px-3 py-1.5 rounded-full shadow-lg flex flex-col items-center border border-gray-200 dark:border-gray-700">
-                        <span className="text-xs font-extrabold text-gray-900 dark:text-white">$8/hr</span>
-                    </div>
-                    <div className="w-2 h-2 bg-white dark:bg-surface-dark rotate-45 mx-auto -mt-1 shadow-sm"></div>
-                </div>
-
-                <div className="absolute top-[48%] right-[30%] pointer-events-auto transform hover:scale-110 transition-transform">
-                    <div className="bg-white dark:bg-surface-dark px-3 py-1.5 rounded-full shadow-lg flex flex-col items-center border border-gray-200 dark:border-gray-700">
-                        <span className="text-xs font-extrabold text-gray-900 dark:text-white">$6/hr</span>
-                    </div>
-                    <div className="w-2 h-2 bg-white dark:bg-surface-dark rotate-45 mx-auto -mt-1 shadow-sm"></div>
-                </div>
-            </div>
-
-            {/* Floating Controls */}
-            <div className="absolute top-4 right-4 flex flex-col gap-2">
-                <Button size="icon" variant="secondary" className="bg-white dark:bg-surface-dark text-gray-700 dark:text-gray-200 shadow-lg">
-                    <span className="material-symbols-outlined">my_location</span>
-                </Button>
-            </div>
+        <div className="relative h-full w-full overflow-hidden rounded-3xl">
+            <link
+                rel="stylesheet"
+                href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            />
+            <MapContainer
+                center={center}
+                zoom={14}
+                style={{ height: '100%', width: '100%' }}
+                scrollWheelZoom={true}
+            >
+                <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                {spots.map((spot) => (
+                    <MarkerDynamic
+                        key={spot._id}
+                        position={[spot.location.coordinates[1], spot.location.coordinates[0]]}
+                        eventHandlers={{
+                            click: () => onSpotSelect?.(spot),
+                        }}
+                    >
+                        <PopupDynamic>
+                            <div className="text-sm">
+                                <p className="font-bold">{spot.title}</p>
+                                <p>LKR {spot.pricePerHour}/hr</p>
+                            </div>
+                        </PopupDynamic>
+                    </MarkerDynamic>
+                ))}
+            </MapContainer>
         </div>
     );
 }

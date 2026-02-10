@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { BottomNav } from '@/components/ui/BottomNav';
+import { GarageBottomNav } from '@/components/ui/GarageBottomNav';
 
 export default function AddGaragePage() {
     const router = useRouter();
@@ -14,8 +14,9 @@ export default function AddGaragePage() {
         latitude: '',
         longitude: ''
     });
+    const [isOnline, setIsOnline] = useState(true);
     const [services, setServices] = useState([
-        { name: '', price: '', estimatedTime: '', category: 'Repair' }
+        { name: '', price: '', estimatedTime: '', category: 'Routine Maintenance' }
     ]);
     const [images, setImages] = useState<File[]>([]); // To store selected files
     const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -32,7 +33,7 @@ export default function AddGaragePage() {
     };
 
     const addService = () => {
-        setServices([...services, { name: '', price: '', estimatedTime: '', category: 'Repair' }]);
+        setServices([...services, { name: '', price: '', estimatedTime: '', category: 'Routine Maintenance' }]);
     };
 
     const removeService = (index: number) => {
@@ -95,7 +96,7 @@ export default function AddGaragePage() {
             data.append('businessName', formData.businessName);
             data.append('description', formData.description);
             data.append('serviceRadius', formData.serviceRadius.toString());
-            data.append('isOnline', 'true'); // Default to online when adding? Or form option.
+            data.append('isOnline', isOnline.toString());
 
             // Construct Location JSON
             const location = {
@@ -151,7 +152,7 @@ export default function AddGaragePage() {
                 <button onClick={() => router.back()} className="rounded-full p-2 -ml-2 text-text-main hover:bg-gray-100 dark:text-white dark:hover:bg-gray-800 transition-colors">
                     <span className="material-symbols-outlined">arrow_back</span>
                 </button>
-                <h1 className="text-lg font-bold text-text-main dark:text-white">Add Garage Spot</h1>
+                <h1 className="text-lg font-bold text-text-main dark:text-white">Register Garage</h1>
                 <div className="w-10"></div>
             </div>
 
@@ -177,6 +178,17 @@ export default function AddGaragePage() {
                             className="w-full rounded-xl border-0 bg-white dark:bg-card-dark p-4 text-sm font-medium text-text-main dark:text-white shadow-sm ring-1 ring-inset ring-gray-200 dark:ring-gray-700 focus:ring-2 focus:ring-primary transition-all placeholder:text-text-sub"
                             rows={3}
                         />
+                    </div>
+
+                    {/* Online Toggle */}
+                    <div className="flex items-center justify-between rounded-xl bg-white dark:bg-card-dark p-4 shadow-sm ring-1 ring-inset ring-gray-200 dark:ring-gray-700">
+                        <div>
+                            <p className="text-sm font-bold text-text-main dark:text-white">Available Online</p>
+                            <p className="text-xs text-text-sub dark:text-gray-400">Show as available to drivers</p>
+                        </div>
+                        <button type="button" onClick={() => setIsOnline(!isOnline)} className={`relative w-12 h-6 rounded-full transition-colors ${isOnline ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'}`}>
+                            <span className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${isOnline ? 'translate-x-6' : ''}`}></span>
+                        </button>
                     </div>
 
                     {/* Location */}
@@ -280,7 +292,7 @@ export default function AddGaragePage() {
                                     <input
                                         type="number"
                                         name="price"
-                                        placeholder="Price ($)"
+                                        placeholder="Price (LKR)"
                                         value={service.price}
                                         onChange={(e) => handleServiceChange(index, e)}
                                         className="w-full rounded-lg border-0 bg-gray-50 dark:bg-gray-800 p-3 text-sm text-text-main dark:text-white ring-1 ring-inset ring-gray-200 dark:ring-gray-600 focus:ring-2 focus:ring-primary transition-all placeholder:text-text-sub"
@@ -321,7 +333,7 @@ export default function AddGaragePage() {
                     </button>
                 </form>
             </main>
-            <BottomNav />
+            <GarageBottomNav />
         </div>
     );
 }
