@@ -7,6 +7,18 @@
 
 ---
 
+## 🔑 Demo Login Credentials
+
+You can also **sign up** to create a new account.
+
+| Role | Email | Password |
+|---|---|---|
+| Driver | `driver@mail.com` | `Driver` |
+| Mechanic / Garage | `mech@mail.lk` | `mech2025` |
+| Parking Owner | `park@mail.lk` | `park2025` |
+
+---
+
 ##  Setup Instructions
 
 ### Prerequisites
