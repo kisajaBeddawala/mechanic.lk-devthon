@@ -32,7 +32,7 @@ export default function RegisterPage() {
         setLoading(true);
 
         try {
-            const res = await fetch('http://mechaniclk-devthon-production.up.railway.app/api/users', {
+            const res = await fetch('https://mechaniclk-devthon-production.up.railway.app/api/users', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),

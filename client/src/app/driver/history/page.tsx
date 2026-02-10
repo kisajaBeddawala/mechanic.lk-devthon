@@ -34,10 +34,10 @@ export default function DriverHistoryPage() {
         const headers = { Authorization: `Bearer ${token}` };
 
         const [auctionsRes, serviceRes, bookingRes, emergencyRes] = await Promise.all([
-            fetch('http://mechaniclk-devthon-production.up.railway.app/api/auctions/driver', { headers }),
-            fetch('http://mechaniclk-devthon-production.up.railway.app/api/service-requests/my', { headers }),
-            fetch('http://mechaniclk-devthon-production.up.railway.app/api/bookings/my', { headers }),
-            fetch('http://mechaniclk-devthon-production.up.railway.app/api/emergency/my', { headers })
+            fetch('https://mechaniclk-devthon-production.up.railway.app/api/auctions/driver', { headers }),
+            fetch('https://mechaniclk-devthon-production.up.railway.app/api/service-requests/my', { headers }),
+            fetch('https://mechaniclk-devthon-production.up.railway.app/api/bookings/my', { headers }),
+            fetch('https://mechaniclk-devthon-production.up.railway.app/api/emergency/my', { headers })
         ]);
 
         const [auctions, services, bookings, emergencies] = await Promise.all([
@@ -121,7 +121,7 @@ export default function DriverHistoryPage() {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        const res = await fetch('http://mechaniclk-devthon-production.up.railway.app/api/payments/methods', {
+        const res = await fetch('https://mechaniclk-devthon-production.up.railway.app/api/payments/methods', {
             headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
@@ -143,9 +143,9 @@ export default function DriverHistoryPage() {
     };
 
     const getStatusEndpoint = (sourceType: 'auction' | 'service' | 'parking', id: string) => {
-        if (sourceType === 'auction') return `http://mechaniclk-devthon-production.up.railway.app/api/auctions/${id}/status`;
-        if (sourceType === 'service') return `http://mechaniclk-devthon-production.up.railway.app/api/service-requests/${id}/status`;
-        return `http://mechaniclk-devthon-production.up.railway.app/api/bookings/${id}/status`;
+        if (sourceType === 'auction') return `https://mechaniclk-devthon-production.up.railway.app/api/auctions/${id}/status`;
+        if (sourceType === 'service') return `https://mechaniclk-devthon-production.up.railway.app/api/service-requests/${id}/status`;
+        return `https://mechaniclk-devthon-production.up.railway.app/api/bookings/${id}/status`;
     };
 
     const getCompletedStatus = (sourceType: 'auction' | 'service' | 'parking') => {
@@ -172,7 +172,7 @@ export default function DriverHistoryPage() {
                     return;
                 }
 
-                const res = await fetch('http://mechaniclk-devthon-production.up.railway.app/api/payments/charge', {
+                const res = await fetch('https://mechaniclk-devthon-production.up.railway.app/api/payments/charge', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -192,7 +192,7 @@ export default function DriverHistoryPage() {
                     throw new Error(data.message || data.gateway?.msg || 'Charge failed');
                 }
             } else {
-                const res = await fetch('http://mechaniclk-devthon-production.up.railway.app/api/payments/cash', {
+                const res = await fetch('https://mechaniclk-devthon-production.up.railway.app/api/payments/cash', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

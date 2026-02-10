@@ -120,7 +120,7 @@ export default function AddGaragePage() {
                 data.append('images', image);
             });
 
-            const res = await fetch('http://mechaniclk-devthon-production.up.railway.app/api/mechanics', {
+            const res = await fetch('https://mechaniclk-devthon-production.up.railway.app/api/mechanics', {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${token}`

@@ -29,7 +29,7 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            const res = await fetch('http://mechaniclk-devthon-production.up.railway.app/api/users/login', {
+            const res = await fetch('https://mechaniclk-devthon-production.up.railway.app/api/users/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),

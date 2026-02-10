@@ -18,7 +18,7 @@ export default function DriverDashboard() {
             if (storedUser) {
                 setUser(JSON.parse(storedUser));
             } else {
-                fetch('http://mechaniclk-devthon-production.up.railway.app/api/users/profile', {
+                fetch('https://mechaniclk-devthon-production.up.railway.app/api/users/profile', {
                     headers: { Authorization: `Bearer ${token}` }
                 })
                     .then(res => res.json())

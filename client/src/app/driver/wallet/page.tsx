@@ -38,7 +38,7 @@ export default function DriverWalletPage() {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        const res = await fetch('http://mechaniclk-devthon-production.up.railway.app/api/payments/wallet', {
+        const res = await fetch('https://mechaniclk-devthon-production.up.railway.app/api/payments/wallet', {
             headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
@@ -57,7 +57,7 @@ export default function DriverWalletPage() {
         setError('');
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://mechaniclk-devthon-production.up.railway.app/api/payments/methods', {
+            const res = await fetch('https://mechaniclk-devthon-production.up.railway.app/api/payments/methods', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -86,7 +86,7 @@ export default function DriverWalletPage() {
         setError('');
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://mechaniclk-devthon-production.up.railway.app/api/payments/charge', {
+            const res = await fetch('https://mechaniclk-devthon-production.up.railway.app/api/payments/charge', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

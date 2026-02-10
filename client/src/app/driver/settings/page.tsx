@@ -14,7 +14,7 @@ export default function DriverSettingsPage() {
             const token = localStorage.getItem('token');
             if (!token) return;
 
-            const res = await fetch('http://mechaniclk-devthon-production.up.railway.app/api/users/profile', {
+            const res = await fetch('https://mechaniclk-devthon-production.up.railway.app/api/users/profile', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const data = await res.json();
@@ -31,7 +31,7 @@ export default function DriverSettingsPage() {
         const token = localStorage.getItem('token');
 
         try {
-            const res = await fetch('http://mechaniclk-devthon-production.up.railway.app/api/users/profile', {
+            const res = await fetch('https://mechaniclk-devthon-production.up.railway.app/api/users/profile', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
